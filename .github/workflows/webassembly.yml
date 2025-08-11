@@ -62,20 +62,13 @@ jobs:
       run: |
         echo "Current working directory:"
         pwd
+        dir .
         echo "Contents of parent directory:"
         cd ..
-        dir .
         echo "Contents of root directory:"
         cd ..
         pwd
         dir .
-
-    - name: Debug Raylib Path
-      run: |
-        echo "Current directory:"
-        pwd
-        echo "List files in ../../raylib/src:"
-        dir ../../raylib/src
 
     - name: Build Product
       run: |
