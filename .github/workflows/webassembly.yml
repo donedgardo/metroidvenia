@@ -62,13 +62,8 @@ jobs:
       run: |
         echo "Current working directory:"
         pwd
-        dir .
-        echo "Contents of parent directory:"
-        cd ..
-        echo "Contents of root directory:"
-        cd ..
-        pwd
-        dir .
+        dir ./raylib/src
+
 
     - name: Build Product
       run: |
