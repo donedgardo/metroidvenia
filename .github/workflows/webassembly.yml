@@ -61,13 +61,21 @@ jobs:
     - name: Debug Directory Structure
       run: |
         echo "Current working directory:"
+        pwd
+        echo "Contents of parent directory:"
         cd ..
+        dir .
+        echo "Contents of root directory:"
         cd ..
         pwd
-        echo "Contents of root directory:"
-        ls -la
-        echo "Contents of raylib directory:"
-        ls -la raylib
+        dir .
+
+    - name: Debug Raylib Path
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "List files in ../../raylib/src:"
+        dir ../../raylib/src
 
     - name: Build Product
       run: |
