@@ -1,6 +1,11 @@
-add_executable(raylib_game)
+add_executable(raylib_game
+        Character.h
+        Character.cpp
+        Player.h
+        Player.cpp
+)
 # @NOTE: add more source files here
-target_sources(raylib_game PRIVATE raylib_game.c)
+target_sources(raylib_game PRIVATE raylib_game.cpp)
 
 target_include_directories(raylib_game PRIVATE "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>")
 target_link_libraries(raylib_game raylib)
@@ -29,6 +34,8 @@ if(APPLE)
     target_link_libraries(raylib_game "-framework Cocoa")
     target_link_libraries(raylib_game "-framework OpenGL")
 endif()
+
+file(COPY ${CMAKE_SOURCE_DIR}/src/resources DESTINATION ${CMAKE_BINARY_DIR})
 
 # misc
 set_target_properties(raylib_game PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

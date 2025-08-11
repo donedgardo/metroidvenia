@@ -12,6 +12,9 @@
 ********************************************************************************************/
 
 #include "raylib.h"
+#include <iterator>
+#include "Character.h"
+#include "Player.h"
 
 #if defined(PLATFORM_WEB)
     #define CUSTOM_MODAL_DIALOGS            // Force custom modal dialogs usage
@@ -34,24 +37,14 @@
     #define LOG(...)
 #endif
 
-//----------------------------------------------------------------------------------
-// Types and Structures Definition
-//----------------------------------------------------------------------------------
-typedef enum { 
-    SCREEN_LOGO = 0, 
-    SCREEN_TITLE, 
-    SCREEN_GAMEPLAY, 
-    SCREEN_ENDING
-} GameScreen;
-
 // TODO: Define your custom data types here
 
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-static const int screenWidth = 800;
-static const int screenHeight = 450;
-
+static constexpr int windowWidth{16 * 80};
+static constexpr int windowHeight{9 * 80};
+constexpr float scale{4.0f};
 static RenderTexture2D target = { 0 };  // Render texture to render our game
 
 // TODO: Define global variables here, recommended to make them static
@@ -64,7 +57,7 @@ static void UpdateDrawFrame(void);      // Update and Draw one frame
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-int main(void)
+int main()
 {
 #if !defined(_DEBUG)
     SetTraceLogLevel(LOG_NONE);         // Disable raylib trace log messages
@@ -72,73 +65,46 @@ int main(void)
 
     // Initialization
     //--------------------------------------------------------------------------------------
-    InitWindow(screenWidth, screenHeight, "raylib gamejam template");
+    SetWindowState(FLAG_WINDOW_HIGHDPI); // Enable HiDPI if needed
+    InitWindow(windowWidth, windowHeight, "raylib gamejam template");
+
     
     // TODO: Load resources / Initialize variables at this point
+    auto character = Character(
+      CharacterAnimations{
+          {"resources/character/Idle/Player Idle 48x48.png", 10, 1.f / 10.f},
+          {"resources/character/Jump/player new jump 48x48.png", 6, 1.f / 10.f},
+          {"resources/character/Land/player land 48x48.png", 9, 1.f / 10.f}
+      },
+      scale);
+    constexpr int ground = windowHeight;
+    character.spawn({(windowWidth - 36 * 4.f) / 4.f, ground});
     
     // Render texture to draw full screen, enables screen scaling
     // NOTE: If screen is scaled, mouse input should be scaled proportionally
-    target = LoadRenderTexture(screenWidth, screenHeight);
+    target = LoadRenderTexture(windowWidth, windowHeight);
     SetTextureFilter(target.texture, TEXTURE_FILTER_BILINEAR);
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
-    SetTargetFPS(60);     // Set our game frames-per-second
-    //--------------------------------------------------------------------------------------
+    SetTargetFPS(60);
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button
     {
-        UpdateDrawFrame();
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        const PlayerInput input = Player::getInput();
+        const float dt = {GetFrameTime()};
+        // character tick
+        character.apply_velocity(input, ground, dt);
+        character.move(dt);
+        character.animate(dt, ground);
+        character.draw();
+        EndDrawing();
     }
 #endif
-
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    UnloadRenderTexture(target);
-    
-    // TODO: Unload all loaded resources at this point
-
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
+    CloseWindow();
     return 0;
-}
-
-//--------------------------------------------------------------------------------------------
-// Module functions definition
-//--------------------------------------------------------------------------------------------
-// Update and draw frame
-void UpdateDrawFrame(void)
-{
-    // Update
-    //----------------------------------------------------------------------------------
-    // TODO: Update variables / Implement example logic at this point
-    //----------------------------------------------------------------------------------
-
-    // Draw
-    //----------------------------------------------------------------------------------
-    // Render game screen to a texture, 
-    // it could be useful for scaling or further shader postprocessing
-    BeginTextureMode(target);
-        ClearBackground(RAYWHITE);
-        
-        // TODO: Draw your game screen here
-        DrawText("Welcome to my ci/cd template!", 150, 140, 30, BLACK);
-        DrawRectangleLinesEx((Rectangle){ 0, 0, screenWidth, screenHeight }, 16, BLACK);
-        
-    EndTextureMode();
-    
-    // Render to screen (main framebuffer)
-    BeginDrawing();
-        ClearBackground(RAYWHITE);
-        
-        // Draw render texture to screen, scaled if required
-        DrawTexturePro(target.texture, (Rectangle){ 0, 0, (float)target.texture.width, -(float)target.texture.height }, (Rectangle){ 0, 0, (float)target.texture.width, (float)target.texture.height }, (Vector2){ 0, 0 }, 0.0f, WHITE);
-
-        // TODO: Draw everything that requires to be drawn at this point, maybe UI?
-
-    EndDrawing();
-    //----------------------------------------------------------------------------------  
 }
