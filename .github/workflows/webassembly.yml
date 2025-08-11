@@ -58,6 +58,13 @@ jobs:
         emcc -v
         make PLATFORM=PLATFORM_WEB RAYLIB_BUILD_MODE=RELEASE RAYLIB_LIBTYPE=STATIC EMSDK_PATH="D:/a/${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}/emsdk-cache/emsdk-main" RAYLIB_PROJECT_RELEASE_PATH=. -B
 
+    - name: Debug Raylib Path
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "List files in ../../raylib/src:"
+        ls -la ../../raylib/src
+
     - name: Build Product
       run: |
         cd ${{ env.PROJECT_NAME }}/src
